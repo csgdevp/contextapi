@@ -1,17 +1,49 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useContext, useState } from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+//Plain empty context
+const RoomContext = React.createContext();
+
+function RoomStore({ children }) {
+  //state of room
+  const [isLit, setLit] = useState(false);
+
+  const toggleLight = () => {
+    setLit(!isLit);
+  };
+
+  //passing down state and the ToggleLight action
+  return (
+    <RoomContext.Provider value={{ isLit, onToggleLight: toggleLight }}>
+      {children}
+    </RoomContext.Provider>
+  );
+}
+
+//Receive the state of ligt and function to
+//toggle the light, from RoomContext
+const Room = () => {
+  const { isLit, onToggleLight } = useContext(RoomContext);
+
+  return (
+    <div className={`room ${isLit ? "lit" : "dark"}`}>
+      The room is {isLit ? "lit" : "dark"}.
+      <br />
+      <button onClick={onToggleLight}>Flip</button>
+    </div>
+  );
+};
+
+const App = () => (
+  <div className="app">
+    <Room />
+  </div>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+//wrap whole app in the RoomStore
+ReactDOM.render(
+  <RoomStore>
+    <App />
+  </RoomStore>,
+  document.getElementById("root")
+);
